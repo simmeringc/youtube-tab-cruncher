@@ -1,11 +1,10 @@
-<h1 style="display: flex; align-items: center; gap: 12px;">
-  <img src="assets/logo.png" alt="" height="40">
-  <span>YouTube Tab Cruncher</span>
-</h1>
+<img src="assets/logo.png" alt="" width="80">
+
+# YouTube Tab Cruncher
 
 A Chrome extension for sorting through your YouTube tabs. It walks through each tab, shows you the video, and adds it to a playlist you pick. Then it closes the tab. You keep the videos, lose the clutter.
 
-<img src="assets/screenshot1.png" alt="Reviewing a video" width="800">
+<img src="assets/screenshot1.png" alt="Reviewing a video" width="1200">
 
 ## The problem
 
