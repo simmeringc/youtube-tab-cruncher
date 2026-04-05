@@ -180,6 +180,12 @@ panel/
   panel.html               # Side panel UI
   panel.css                # Styles (CSS custom properties)
   panel.js                 # UI logic, rendering, event handlers
+assets/
+  icon16.png               # Extension icon (16px)
+  icon48.png               # Extension icon (48px)
+  icon128.png              # Extension icon (128px)
+  logo.png                 # README logo
+  screenshot1.png          # README screenshot
 ```
 
 The service worker runs a state machine (`idle > loading > preview > reviewing > paused/stopped > complete`) that persists to `chrome.storage.session` and pushes state updates to the side panel over a `chrome.runtime.connect` port.
