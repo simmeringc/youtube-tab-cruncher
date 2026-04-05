@@ -478,13 +478,14 @@ async function refreshQuota() {
   const stats = await send({ type: 'GET_QUOTA' });
   if (!stats) return;
 
-  const pct = Math.min(100, Math.round((stats.used / stats.limit) * 100));
+  const usedPct = Math.min(100, Math.round((stats.used / stats.limit) * 100));
+  const remainingPct = Math.max(0, 100 - usedPct);
   const remaining = stats.remaining;
   const addsLeft = Math.floor(remaining / 50);
 
-  $('quota-bar-fill').style.width = `${pct}%`;
+  $('quota-bar-fill').style.width = `${remainingPct}%`;
   $('quota-bar-fill').className = 'quota-bar-fill' +
-    (pct >= 90 ? ' danger' : pct >= 70 ? ' warning' : '');
+    (usedPct >= 90 ? ' danger' : usedPct >= 70 ? ' warning' : '');
 
   $('quota-text').textContent = `${remaining.toLocaleString()} / ${stats.limit.toLocaleString()} units remaining (~${addsLeft} adds left)`;
 }
@@ -501,10 +502,15 @@ function startQuotaRefresh() {
 let countdownSeconds = 3;
 
 async function loadSettings() {
-  const settings = await chrome.storage.local.get(['reviewSeconds']);
+  const settings = await chrome.storage.local.get(['reviewSeconds', 'devMode']);
   countdownSeconds = settings.reviewSeconds || 3;
   $('countdown-value').textContent = countdownSeconds;
+  $('dev-mode-toggle').checked = !!settings.devMode;
 }
+
+$('dev-mode-toggle').addEventListener('change', (e) => {
+  chrome.storage.local.set({ devMode: e.target.checked });
+});
 
 function saveCountdownSetting() {
   chrome.storage.local.set({ reviewSeconds: countdownSeconds });
@@ -642,6 +648,13 @@ $('finish-btn').addEventListener('click', () => send({ type: 'FINISH' }));
 $('override-btn').addEventListener('click', () => {
   const playlistId = $('override-playlist').value;
   if (playlistId) send({ type: 'ADD_TO_PLAYLIST', playlistId });
+});
+
+$('cancel-run-btn').addEventListener('click', async () => {
+  if (!confirm('Cancel this run? Progress so far will be discarded.')) return;
+  await send({ type: 'RESET' });
+  lastResultsLength = 0;
+  showScreen('setup');
 });
 
 $('clear-cache-btn').addEventListener('click', async () => {

@@ -5,6 +5,15 @@ const HEARTBEAT_ALARM = 'yt-pl-heartbeat';
 const TAB_LOAD_TIMEOUT_MS = 10000;
 const DEFAULT_REVIEW_DELAY_MS = 3000;
 
+// Dev mode: loops the countdown forever without adding to playlist or closing
+// the tab. On each loop, re-reads the current tab's URL so the thumbnail stays
+// in sync with whatever video is actually playing. For taking screenshots.
+// Toggled via the checkbox on the setup screen (stored in chrome.storage.local).
+async function isDevMode() {
+  const { devMode } = await chrome.storage.local.get('devMode');
+  return !!devMode;
+}
+
 let reviewTimer = null;
 
 function defaultState() {
@@ -121,6 +130,25 @@ export async function handleMessage(message) {
       if (state.status === 'preview') {
         state.status = 'starting';
         state.previewCounts = null;
+
+        // Dev mode: pre-populate history with fake results for all YouTube tabs
+        // except the first one (which stays as the "current" tab for screenshots).
+        if (await isDevMode()) {
+          const ytIndices = state.allTabs
+            .map((t, i) => (t.isYouTube ? i : -1))
+            .filter(i => i !== -1);
+          for (const idx of ytIndices.slice(1)) {
+            const tab = state.allTabs[idx];
+            state.results.push({
+              videoId: tab.videoId,
+              title: tab.title,
+              playlistId: state.defaultPlaylistId,
+              status: Math.random() < 0.7 ? 'added' : 'skipped',
+              reason: 'Dev mode dummy',
+            });
+          }
+        }
+
         await setState(state);
         startHeartbeat();
         scheduleProcessNext();
@@ -540,6 +568,30 @@ async function finishReview() {
   reviewTimer = null;
   const state = await getState();
   if (state.status !== 'reviewing') return;
+
+  if (await isDevMode()) {
+    // Re-read the current tab's URL so the thumbnail matches whatever video is
+    // actually on screen (the user may have navigated within the tab).
+    const tabInfo = state.currentTab;
+    if (tabInfo) {
+      try {
+        const tab = await chrome.tabs.get(tabInfo.tabId);
+        tabInfo.url = tab.url || tabInfo.url;
+        tabInfo.title = tab.title || tabInfo.title;
+        const liveVideoId = extractVideoId(tabInfo.url);
+        if (liveVideoId) tabInfo.videoId = liveVideoId;
+        tabInfo.isYouTube = !!tabInfo.videoId;
+        state.currentTab = tabInfo;
+        state.allTabs[state.currentIndex] = tabInfo;
+      } catch {}
+    }
+    const delay = state.reviewDelayMs || DEFAULT_REVIEW_DELAY_MS;
+    state.reviewUntil = Date.now() + delay;
+    await setState(state);
+    reviewTimer = setTimeout(() => finishReview(), delay);
+    return;
+  }
+
   await doFinishReview(state);
 }
 

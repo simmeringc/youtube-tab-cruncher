@@ -737,6 +737,23 @@ kbd {
   to   { opacity: 0; }
 }
 
+/* ── Dev Toggle ──────────────────────────────── */
+.dev-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  margin-top: var(--sp-md);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.dev-toggle input {
+  margin: 0;
+  cursor: pointer;
+}
+
 /* ── Quota Footer ────────────────────────────── */
 .quota-footer {
   flex-shrink: 0;

@@ -48,6 +48,11 @@
         <button id="clear-cache-btn" class="btn btn-secondary btn-sm">Clear cache</button>
       </div>
     </div>
+
+    <label class="dev-toggle">
+      <input type="checkbox" id="dev-mode-toggle">
+      <span>Dev mode (loops countdown, skips API calls)</span>
+    </label>
   </div>
 
   <!-- Active (preview / reviewing / paused / stopped / loading) -->
@@ -133,6 +138,8 @@
         <label for="override-playlist">Add to a different playlist</label>
         <select id="override-playlist"></select>
         <button id="override-btn" class="btn btn-accent btn-block">Add to this playlist</button>
+        <hr class="divider">
+        <button id="cancel-run-btn" class="btn btn-outline-danger btn-block">Cancel run &amp; start over</button>
       </div>
 
       <!-- Stopped -->
