@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Tab Cruncher",
+  "version": "1.0.0",
+  "description": "Bulk-add videos from open YouTube tabs to playlists.",
+  "permissions": [
+    "identity",
+    "tabs",
+    "alarms",
+    "storage",
+    "sidePanel",
+    "scripting"
+  ],
+  "oauth2": {
+    "client_id": "__OAUTH_CLIENT_ID__",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube"
+    ]
+  },
+  "host_permissions": [
+    "*://www.youtube.com/*",
+    "*://m.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "YouTube Tab Cruncher",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "panel/panel.html"
+  },
+  "commands": {
+    "pause-review": {
+      "suggested_key": {
+        "default": "Alt+P"
+      },
+      "description": "Pause the current review"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

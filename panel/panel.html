@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+
+  <!-- Auth -->
+  <div id="auth-screen" class="screen">
+    <h2>YouTube Tab Cruncher</h2>
+    <p>Sign in to access your YouTube playlists.</p>
+    <button id="auth-btn" class="btn btn-primary btn-block">Sign in with Google</button>
+    <div id="auth-error" class="error hidden"></div>
+  </div>
+
+  <!-- Setup -->
+  <div id="setup-screen" class="screen hidden">
+    <h2>YouTube Tab Cruncher</h2>
+
+    <label for="default-playlist">Default playlist</label>
+    <select id="default-playlist"></select>
+
+    <label>Review time (seconds)</label>
+    <div class="stepper">
+      <button class="stepper-btn" id="countdown-down">-</button>
+      <span class="stepper-value" id="countdown-value">3</span>
+      <button class="stepper-btn" id="countdown-up">+</button>
+    </div>
+
+    <button id="start-btn" class="btn btn-primary btn-block">Scan Tabs</button>
+    <p class="hint">Scans your tabs, then shows a preview before processing. Each video is reviewed before being added to your default playlist. Pause to redirect or skip. Shortcut: <kbd>Alt+P</kbd> to pause (configurable in chrome://extensions/shortcuts).</p>
+
+    <div class="cache-section">
+      <div class="section-label">Cache</div>
+      <div id="cache-stats" class="cache-stats">No cache</div>
+      <details class="cache-help">
+        <summary>How to inspect raw cache data</summary>
+        <ol>
+          <li>Go to <code>chrome://extensions</code></li>
+          <li>Click your extension's <strong>Details</strong></li>
+          <li>Under Inspect views, click <strong>service worker</strong></li>
+          <li>In DevTools, go to <strong>Application</strong> tab</li>
+          <li>Expand <strong>Extension storage → Local</strong></li>
+        </ol>
+      </details>
+      <div class="cache-actions">
+        <button id="clear-cache-btn" class="btn btn-secondary btn-sm">Clear cache</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active (preview / reviewing / paused / stopped / loading) -->
+  <div id="active-screen" class="screen hidden">
+
+    <div id="default-playlist-link" class="playlist-link hidden">
+      Adding to: <a id="default-pl-anchor" target="_blank" rel="noopener"></a>
+    </div>
+
+    <div class="progress-header">
+      <span id="progress-text">Processing...</span>
+      <span id="progress-count"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <!-- Current: YouTube video -->
+    <div id="current-yt" class="card hidden">
+      <img id="video-thumb" class="card-thumb" src="" alt="">
+      <div>
+        <div id="video-title" class="card-title"></div>
+        <div id="video-id" class="card-meta"></div>
+      </div>
+    </div>
+
+    <!-- Current: non-YouTube tab -->
+    <div id="current-other" class="card card--warning hidden">
+      <div>
+        <div class="card-tag">Not a YouTube video</div>
+        <div id="other-title" class="card-title"></div>
+        <div id="other-url" class="card-meta"></div>
+      </div>
+    </div>
+
+    <!-- Already-in-playlist banner -->
+    <div id="existing-playlists" class="banner banner--info hidden">
+      <span class="banner-label">Already in playlist</span>
+      <span id="existing-list"></span>
+    </div>
+
+    <!-- Controls area (fixed min-height to prevent bouncing) -->
+    <div class="controls-area">
+
+      <!-- Loading spinner -->
+      <div id="controls-loading" class="hidden">
+        <div class="loading-indicator">
+          <div class="spinner"></div>
+          <div id="loading-detail" class="loading-detail">Loading playlists...</div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="controls-preview" class="hidden">
+        <div id="preview-counts" class="preview-counts"></div>
+        <div id="cache-info" class="cache-info hidden"></div>
+        <div class="actions">
+          <button id="go-btn" class="btn btn-primary btn-block">Go</button>
+          <button id="cancel-btn" class="btn btn-secondary btn-block">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Reviewing -->
+      <div id="controls-reviewing" class="actions hidden">
+        <div class="countdown-row">
+          <button class="stepper-btn stepper-btn--sm" id="live-countdown-down">-</button>
+          <div id="countdown" class="status-text status-text--active">Adding in 3s...</div>
+          <button class="stepper-btn stepper-btn--sm" id="live-countdown-up">+</button>
+        </div>
+        <button id="pause-btn" class="btn btn-danger btn-block">Pause</button>
+        <button id="continue-btn" class="btn btn-primary btn-block">Continue</button>
+        <button id="skip-reviewing-btn" class="btn btn-secondary btn-block">Skip</button>
+        <button id="remove-reviewing-btn" class="btn btn-outline-danger btn-block">Remove from all playlists &amp; skip</button>
+      </div>
+
+      <!-- Paused -->
+      <div id="controls-paused" class="hidden">
+        <div class="status-text status-text--warning">Paused</div>
+        <div class="actions">
+          <button id="add-default-btn" class="btn btn-primary btn-block">Add to default playlist</button>
+          <button id="skip-btn" class="btn btn-secondary btn-block">Skip</button>
+          <button id="remove-paused-btn" class="btn btn-outline-danger btn-block">Remove from all playlists &amp; skip</button>
+        </div>
+        <hr class="divider">
+        <label for="override-playlist">Add to a different playlist</label>
+        <select id="override-playlist"></select>
+        <button id="override-btn" class="btn btn-accent btn-block">Add to this playlist</button>
+      </div>
+
+      <!-- Stopped -->
+      <div id="controls-stopped" class="hidden">
+        <div class="status-text status-text--active">Stopped</div>
+        <p class="status-hint">Reached a non-YouTube tab. Handle your tabs, then resume to skip ahead to the next video.</p>
+        <div class="actions">
+          <button id="resume-scan-btn" class="btn btn-primary btn-block">Resume</button>
+          <button id="finish-btn" class="btn btn-secondary btn-block">Finish &amp; show results</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- History -->
+    <div id="history-section" class="section-divider hidden">
+      <div class="section-label">Processed <span id="history-count">0</span></div>
+      <div id="history-list" class="item-list"></div>
+      <div class="reassign-row">
+        <span class="reassign-label">Re-add to:</span>
+        <select id="history-playlist"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete -->
+  <div id="complete-screen" class="screen hidden">
+    <h2>Done</h2>
+    <div id="quota-error" class="banner banner--quota hidden"></div>
+    <div id="results-summary" class="summary"></div>
+    <div id="results-list" class="item-list"></div>
+    <div class="reassign-row">
+      <span class="reassign-label">Re-add to:</span>
+      <select id="complete-playlist"></select>
+    </div>
+    <button id="reset-btn" class="btn btn-primary btn-block">Start Over</button>
+  </div>
+
+  <!-- Quota footer (always visible) -->
+  <div id="quota-footer" class="quota-footer">
+    <div class="quota-bar">
+      <div class="quota-bar-fill" id="quota-bar-fill"></div>
+    </div>
+    <div class="quota-text" id="quota-text">Quota: loading...</div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <script src="panel.js"></script>
+</body>
+</html>
