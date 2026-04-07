@@ -8,11 +8,11 @@ A Chrome extension for sorting through your YouTube tabs. It walks through each 
 
 ## The problem
 
-You find an interesting YouTube video. You open it in a new tab. A recommendation catches your eye, another tab. By Friday you have 40 YouTube tabs across three windows, Chrome is grinding, and half of them have been sleeping so long you've forgotten what they are.
+You find an interesting YouTube channel. You open a handful of videos that look worth watching later. Maybe you do the same thing with a few more channels. Now you've got 40 tabs and Chrome is using half your memory on videos you haven't watched yet.
 
-You could go through them one by one, decide what to keep, add each to the right playlist, close the tab. But that takes forever, so you don't, and next week you have 60.
+You could go through them one by one, add each to the right playlist, close the tab. But that takes forever, so the tabs sit there.
 
-This extension does that process for you. Pick a playlist, hit Go, and it walks through your tabs with a short countdown on each one. You watch them go by and only intervene when something needs a different playlist or doesn't belong anywhere. Everything else gets filed and closed automatically.
+This extension turns open tabs into a playlist. Pick a destination, hit Go, and it walks through each tab with a short countdown. You watch them go by and only step in when something needs a different playlist or doesn't belong. Everything else gets cataloged and closed automatically. You end up with a backlog you can come back to whenever, and your browser gets its memory back.
 
 ## How it works
 
